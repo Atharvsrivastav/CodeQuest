@@ -6,12 +6,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
 import MessageContent from "@/components/MessageContent";
-import {
-  diffBadge,
-  getChallengeById,
-  markComplete
-} from "@/lib/data";
-import { useLearnlyProgress } from "@/lib/useProgress";
+import { diffBadge, getChallengeById } from "@/lib/challenges";
+import { recordEvaluation } from "@/lib/progress";
+import { useProgress } from "@/lib/useProgress";
 
 const MonacoEditor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
 
@@ -20,13 +17,28 @@ type ChatMessage = {
   content: string;
 };
 
+type RunResult = {
+  status: "ok" | "error";
+  output: string;
+};
+
+type TestResult = {
+  input: string;
+  expected: string;
+  actual: string;
+  passed: boolean;
+};
+
 type EvaluationResult = {
   passed: boolean;
   passedTests: number;
   totalTests: number;
   feedback: string;
   suggestion: string;
+  results: TestResult[];
 };
+
+type ActivePanel = "output" | "tests";
 
 const tutorStarters = [
   "Help me understand what the challenge is really asking.",
@@ -38,13 +50,16 @@ export default function ChallengeDetailPage() {
   const params = useParams() as { id?: string | string[] };
   const challengeId = Array.isArray(params.id) ? params.id[0] : params.id;
   const challenge = challengeId ? getChallengeById(challengeId) : undefined;
-  const progress = useLearnlyProgress();
+  const progress = useProgress();
   const solved = challenge ? progress.completedIds.includes(challenge.id) : false;
 
+  const [activePanel, setActivePanel] = useState<ActivePanel>("output");
   const [code, setCode] = useState("");
   const [showHint, setShowHint] = useState(false);
-  const [result, setResult] = useState<EvaluationResult | null>(null);
-  const [running, setRunning] = useState(false);
+  const [runResult, setRunResult] = useState<RunResult | null>(null);
+  const [runLoading, setRunLoading] = useState(false);
+  const [testResult, setTestResult] = useState<EvaluationResult | null>(null);
+  const [testLoading, setTestLoading] = useState(false);
   const [tutorMessages, setTutorMessages] = useState<ChatMessage[]>([]);
   const [tutorInput, setTutorInput] = useState("");
   const [tutorLoading, setTutorLoading] = useState(false);
@@ -54,9 +69,11 @@ export default function ChallengeDetailPage() {
       return;
     }
 
+    setActivePanel("output");
     setCode(challenge.starterCode);
     setShowHint(false);
-    setResult(null);
+    setRunResult(null);
+    setTestResult(null);
     setTutorMessages([]);
     setTutorInput("");
     setTutorLoading(false);
@@ -69,7 +86,7 @@ export default function ChallengeDetailPage() {
           <span className="section-label">Challenge</span>
           <h1 style={{ margin: 0, letterSpacing: "-0.03em" }}>Challenge not found</h1>
           <p className="page-copy">
-            This challenge id does not match any item in the Learnly library.
+            This challenge id does not match any item in the CodeQuest library.
           </p>
           <div>
             <Link href="/challenges" className="btn btn-primary">
@@ -81,13 +98,64 @@ export default function ChallengeDetailPage() {
     );
   }
 
-  const runEvaluation = async () => {
-    if (running) {
+  const actionBusy = runLoading || testLoading;
+
+  const runCode = async () => {
+    if (actionBusy) {
       return;
     }
 
-    setRunning(true);
-    setResult(null);
+    setActivePanel("output");
+    setRunLoading(true);
+    setRunResult(null);
+
+    try {
+      const response = await fetch("/api/run", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          challengeId: challenge.id,
+          code
+        })
+      });
+
+      const data = (await response.json()) as Partial<RunResult> & { error?: string };
+
+      if (!response.ok) {
+        setRunResult({
+          status: "error",
+          output:
+            typeof data.output === "string"
+              ? data.output
+              : data.error ?? "Unable to run the code right now."
+        });
+        return;
+      }
+
+      setRunResult({
+        status: data.status === "error" ? "error" : "ok",
+        output: typeof data.output === "string" ? data.output : "(no output)"
+      });
+    } catch (error) {
+      setRunResult({
+        status: "error",
+        output: error instanceof Error ? error.message : "Unable to run the code right now."
+      });
+    } finally {
+      setRunLoading(false);
+    }
+  };
+
+  const runTests = async () => {
+    if (actionBusy) {
+      return;
+    }
+
+    setActivePanel("tests");
+    setTestLoading(true);
+    setTestResult(null);
 
     try {
       const response = await fetch("/api/evaluate", {
@@ -96,33 +164,36 @@ export default function ChallengeDetailPage() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          code,
-          challenge
+          challengeId: challenge.id,
+          code
         })
       });
 
       const data = (await response.json()) as EvaluationResult & { error?: string };
 
-      if (!response.ok && data.error) {
-        throw new Error(data.error);
+      if (!response.ok) {
+        throw new Error(data.error ?? "Unable to evaluate the code right now.");
       }
 
-      setResult(data);
-
-      if (data.passed) {
-        markComplete(challenge.id, challenge.xp);
-      }
+      setTestResult(data);
+      recordEvaluation(challenge.id, data.passed);
     } catch (error) {
-      setResult({
+      setTestResult({
         passed: false,
         passedTests: 0,
         totalTests: challenge.testCases.length,
         feedback:
           error instanceof Error ? error.message : "Unable to evaluate the code right now.",
-        suggestion: "Review the challenge requirements and try the evaluation again."
+        suggestion: "Review the challenge requirements and try the evaluation again.",
+        results: challenge.testCases.map((testCase) => ({
+          input: testCase.input,
+          expected: testCase.expected,
+          actual: "unclear from submission",
+          passed: false
+        }))
       });
     } finally {
-      setRunning(false);
+      setTestLoading(false);
     }
   };
 
@@ -147,13 +218,15 @@ export default function ChallengeDetailPage() {
         body: JSON.stringify({
           mode: "coding",
           context: {
+            challengeId: challenge.id,
             title: challenge.title,
             description: challenge.description,
             language: challenge.language,
             difficulty: challenge.difficulty,
             hint: challenge.hint,
             tags: challenge.tags,
-            testCases: challenge.testCases
+            testCases: challenge.testCases,
+            currentCode: code
           },
           messages: nextMessages
         })
@@ -202,7 +275,11 @@ export default function ChallengeDetailPage() {
               <div className="stack-sm">
                 <span className="section-label">Test Cases</span>
                 {challenge.testCases.map((testCase, index) => (
-                  <pre key={`${testCase.input}-${index}`} className="card surface-muted" style={{ margin: 0 }}>
+                  <pre
+                    key={`${testCase.input}-${index}`}
+                    className="card surface-muted"
+                    style={{ margin: 0 }}
+                  >
                     <code>
                       Input: {testCase.input}
                       {"\n"}Expected: {testCase.expected}
@@ -238,24 +315,11 @@ export default function ChallengeDetailPage() {
 
                 {showHint && <div className="hint-box">{challenge.hint}</div>}
               </div>
-
-              {result && (
-                <div className={`result-box ${result.passed ? "result-pass" : "result-fail"} stack-sm`}>
-                  <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
-                    <strong>{result.passed ? "Passed" : "Keep going"}</strong>
-                    <span className="mono">
-                      {result.passedTests}/{result.totalTests}
-                    </span>
-                  </div>
-                  <p className="page-copy">{result.feedback}</p>
-                  <p className="page-copy">{result.suggestion}</p>
-                </div>
-              )}
             </div>
 
             <div className="card stack-md">
               <div className="stack-sm">
-                <span className="section-label">Mini AI Tutor</span>
+                <span className="section-label">Challenge Tutor</span>
                 <p className="page-copy">
                   Ask for hints, debugging help, or a walkthrough of the prompt. Full solutions stay
                   off limits.
@@ -300,7 +364,7 @@ export default function ChallengeDetailPage() {
                     <div className="chat-bubble chat-bubble-assistant">
                       <div className="inline-cluster">
                         <span className="spin" aria-hidden="true">
-                          ↻
+                          ...
                         </span>
                         <span className="text-muted">Thinking...</span>
                       </div>
@@ -363,21 +427,46 @@ export default function ChallengeDetailPage() {
                   className="btn btn-ghost"
                   onClick={() => {
                     setCode(challenge.starterCode);
-                    setResult(null);
+                    setRunResult(null);
+                    setTestResult(null);
+                    setActivePanel("output");
                   }}
+                  disabled={actionBusy}
                 >
                   Reset
                 </button>
-                <button type="button" className="btn btn-primary" onClick={() => void runEvaluation()}>
-                  {running ? (
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => void runCode()}
+                  disabled={actionBusy}
+                >
+                  {runLoading ? (
                     <>
                       <span className="spin" aria-hidden="true">
-                        ↻
+                        ...
                       </span>
-                      Running
+                      Running Code
                     </>
                   ) : (
-                    "Run"
+                    "Run Code"
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={() => void runTests()}
+                  disabled={actionBusy}
+                >
+                  {testLoading ? (
+                    <>
+                      <span className="spin" aria-hidden="true">
+                        ...
+                      </span>
+                      Running Tests
+                    </>
+                  ) : (
+                    "Run Tests"
                   )}
                 </button>
               </div>
@@ -401,6 +490,115 @@ export default function ChallengeDetailPage() {
               }}
             />
           </div>
+
+          <section className="card fade-in fade-in-4 stack-md">
+            <div className="toolbar" style={{ justifyContent: "space-between" }}>
+              <div className="tabs">
+                <button
+                  type="button"
+                  className={`pill ${activePanel === "output" ? "pill-active" : ""}`}
+                  onClick={() => setActivePanel("output")}
+                >
+                  Output
+                </button>
+                <button
+                  type="button"
+                  className={`pill ${activePanel === "tests" ? "pill-active" : ""}`}
+                  onClick={() => setActivePanel("tests")}
+                >
+                  Tests
+                </button>
+              </div>
+
+              {activePanel === "output" && runResult && (
+                <span className={`badge ${runResult.status === "error" ? "badge-red" : "badge-blue"}`}>
+                  {runResult.status === "error" ? "Run Error" : "Simulated Output"}
+                </span>
+              )}
+
+              {activePanel === "tests" && testResult && (
+                <span className={`badge ${testResult.passed ? "badge-green" : "badge-red"}`}>
+                  {testResult.passedTests}/{testResult.totalTests} passed
+                </span>
+              )}
+            </div>
+
+            {activePanel === "output" ? (
+              runLoading ? (
+                <div className="empty-note">Running your code and preparing the simulated output...</div>
+              ) : runResult ? (
+                <pre className="workspace-output">
+                  <code>{runResult.output}</code>
+                </pre>
+              ) : (
+                <div className="empty-note">
+                  Run your code to see simulated console output for this challenge.
+                </div>
+              )
+            ) : testLoading ? (
+              <div className="empty-note">Running the challenge test cases and preparing feedback...</div>
+            ) : testResult ? (
+              <div className="stack-md">
+                <div className={`result-box ${testResult.passed ? "result-pass" : "result-fail"} stack-sm`}>
+                  <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
+                    <strong>{testResult.passed ? "All tests passed" : "Tests still failing"}</strong>
+                    <span className="mono">
+                      {testResult.passedTests}/{testResult.totalTests}
+                    </span>
+                  </div>
+                  <p className="page-copy">{testResult.feedback}</p>
+                  <p className="page-copy">{testResult.suggestion}</p>
+                </div>
+
+                <div className="workspace-test-list">
+                  {testResult.results.map((item, index) => (
+                    <div
+                      className={`result-box ${item.passed ? "result-pass" : "result-fail"} stack-sm`}
+                      key={`${item.input}-${index}`}
+                    >
+                      <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
+                        <strong>Test {index + 1}</strong>
+                        <span className={`badge ${item.passed ? "badge-green" : "badge-red"}`}>
+                          {item.passed ? "Passed" : "Failed"}
+                        </span>
+                      </div>
+
+                      <div className="workspace-test-grid">
+                        <div className="workspace-test-block">
+                          <span className="section-label" style={{ marginBottom: "0.5rem" }}>
+                            Input
+                          </span>
+                          <pre className="workspace-snippet">
+                            <code>{item.input}</code>
+                          </pre>
+                        </div>
+                        <div className="workspace-test-block">
+                          <span className="section-label" style={{ marginBottom: "0.5rem" }}>
+                            Expected
+                          </span>
+                          <pre className="workspace-snippet">
+                            <code>{item.expected}</code>
+                          </pre>
+                        </div>
+                        <div className="workspace-test-block">
+                          <span className="section-label" style={{ marginBottom: "0.5rem" }}>
+                            Actual
+                          </span>
+                          <pre className="workspace-snippet">
+                            <code>{item.actual}</code>
+                          </pre>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className="empty-note">
+                Run the tests to see pass or fail status, per-test details, and AI feedback.
+              </div>
+            )}
+          </section>
         </div>
       </section>
     </div>

@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from "react";
 
-import { type LearnlyProgress, getProgress, progressEventName } from "./data";
+import { type AppProgress, getProgress, progressEventName } from "./progress";
 
-const defaultProgress: LearnlyProgress = {
+const defaultProgress: AppProgress = {
   completedIds: [],
-  xp: 0
+  xp: 0,
+  streak: 0,
+  lastSolvedDate: null,
+  challengeStats: {},
+  topicStats: {},
+  recentAttemptOutcomes: []
 };
 
-export function useLearnlyProgress() {
-  const [progress, setProgress] = useState<LearnlyProgress>(defaultProgress);
+export function useProgress() {
+  const [progress, setProgress] = useState<AppProgress>(defaultProgress);
 
   useEffect(() => {
     const sync = () => {
@@ -18,11 +23,9 @@ export function useLearnlyProgress() {
     };
 
     sync();
-    window.addEventListener("storage", sync);
     window.addEventListener(progressEventName, sync);
 
     return () => {
-      window.removeEventListener("storage", sync);
       window.removeEventListener(progressEventName, sync);
     };
   }, []);

@@ -1,4 +1,4 @@
-export type AiMode = "coding" | "language" | "general";
+export type AiMode = "coding" | "editor" | "evaluation";
 
 export type AiMessage = {
   role: "user" | "assistant";
@@ -31,11 +31,11 @@ const GEMINI_API_URL =
 
 const BASE_SYSTEM_PROMPTS: Record<AiMode, string> = {
   coding:
-    "You are Learnly's coding tutor. Be patient, concise, and encouraging. Teach with hints, next steps, debugging guidance, and tiny illustrative snippets only. Do not provide complete solutions or fully solved final code. If a user asks for output simulation, return only the raw output they requested.",
-  language:
-    "You are Learnly's language tutor. Be friendly, clear, and motivating. Explain answers with translations, pronunciation help when useful, and short examples. Keep responses practical and easy to study.",
-  general:
-    "You are Learnly's general tutor for programming and spoken languages. Adapt to the user's topic, stay concise, and provide actionable explanations, examples, or guided practice."
+    "You are CodeQuest's coding tutor. Be patient, concise, and encouraging. Teach with hints, debugging guidance, decomposition, and tiny illustrative snippets only. Do not provide complete solutions or fully solved final code unless the user explicitly asks for one outside of a challenge context.",
+  editor:
+    "You simulate console output for CodeQuest's editor. Return only the requested output with no explanation, markdown, or extra framing. If nothing prints, respond with (no output).",
+  evaluation:
+    "You evaluate programming submissions for CodeQuest. Follow the requested response format exactly, stay conservative when code behavior is unclear, and do not add markdown fences."
 };
 
 export async function callGemini({
@@ -105,7 +105,7 @@ export async function callGemini({
   return text;
 }
 
-export function extractJsonObject(text: string) {
+export function extractJsonObject<T>(text: string): T {
   const cleaned = text.replace(/```json|```/gi, "").trim();
   const start = cleaned.indexOf("{");
   const end = cleaned.lastIndexOf("}");
@@ -114,13 +114,7 @@ export function extractJsonObject(text: string) {
     throw new Error("Gemini response did not contain a JSON object.");
   }
 
-  return JSON.parse(cleaned.slice(start, end + 1)) as {
-    passed: boolean;
-    passedTests: number;
-    totalTests: number;
-    feedback: string;
-    suggestion: string;
-  };
+  return JSON.parse(cleaned.slice(start, end + 1)) as T;
 }
 
 function serializeContext(context: unknown) {

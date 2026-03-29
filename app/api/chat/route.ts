@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as ChatRequestBody;
     const messages = Array.isArray(body.messages) ? body.messages : [];
-    const mode = body.mode ?? "general";
+    const mode = body.mode ?? "coding";
 
     if (!messages.length) {
       return NextResponse.json({ error: "Messages are required." }, { status: 400 });

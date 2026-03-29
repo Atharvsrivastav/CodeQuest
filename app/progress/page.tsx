@@ -1,51 +1,45 @@
 "use client";
 
-import { useMemo } from "react";
+import { motion } from "framer-motion";
 
 import ProgressBar from "@/components/ProgressBar";
-import {
-  codingChallenges,
-  languageLessons,
-  resetProgress,
-  totalAvailableXp
-} from "@/lib/data";
-import { useLearnlyProgress } from "@/lib/useProgress";
+import { codingChallenges, totalChallengeXp } from "@/lib/challenges";
+import { getAdaptiveDifficulty, getWeakTopics } from "@/lib/personalization";
+import { resetProgress } from "@/lib/progress";
+import { useProgress } from "@/lib/useProgress";
 
 export default function ProgressPage() {
-  const progress = useLearnlyProgress();
+  const progress = useProgress();
   const completedIds = new Set(progress.completedIds);
-
-  const codingSolved = codingChallenges.filter((challenge) => completedIds.has(challenge.id)).length;
-  const languageSolved = languageLessons.filter((lesson) => completedIds.has(lesson.id)).length;
-
-  const languageGroups = useMemo(() => {
-    return ["Spanish", "French", "German", "Japanese"].map((lang) => {
-      const lessons = languageLessons.filter((lesson) => lesson.lang === lang);
-      const completed = lessons.filter((lesson) => completedIds.has(lesson.id)).length;
-
-      return {
-        lang,
-        lessons,
-        completed
-      };
-    });
-  }, [completedIds]);
+  const solvedCount = codingChallenges.filter((challenge) => completedIds.has(challenge.id)).length;
+  const remainingCount = codingChallenges.length - solvedCount;
+  const completionRate = Math.round((solvedCount / Math.max(codingChallenges.length, 1)) * 100);
+  const adaptiveDifficulty = getAdaptiveDifficulty(progress);
+  const weakTopics = getWeakTopics(progress, 5);
+  const adaptiveDifficultyLabel =
+    adaptiveDifficulty.charAt(0).toUpperCase() + adaptiveDifficulty.slice(1);
+  const sectionMotion = (delay = 0) => ({
+    initial: false as const,
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.45, delay, ease: "easeOut" as const }
+  });
 
   return (
     <div className="page-shell stack-lg">
-      <section className="card fade-in fade-in-1 stack-md">
+      <motion.section className="card stack-md" {...sectionMotion(0.05)}>
         <div className="toolbar" style={{ justifyContent: "space-between" }}>
           <div className="stack-sm">
             <span className="section-label">Progress</span>
             <h1 className="page-heading" style={{ fontSize: "clamp(1.8rem, 3vw, 2.8rem)" }}>
-              Track every lesson and challenge
+              Track challenge completion and XP
             </h1>
           </div>
           <button
             type="button"
             className="btn btn-ghost"
             onClick={() => {
-              if (window.confirm("Reset all Learnly progress? This will clear completed items and XP.")) {
+              if (window.confirm("Reset all CodeQuest progress? This will clear completed challenges and XP.")) {
                 resetProgress();
               }
             }}
@@ -54,111 +48,102 @@ export default function ProgressPage() {
           </button>
         </div>
 
-        <ProgressBar value={progress.xp} max={totalAvailableXp} label="XP earned" />
+        <ProgressBar value={progress.xp} max={totalChallengeXp} label="XP earned" />
 
         <div className="stats-grid">
           <div className="stat-card fade-in fade-in-2 stack-sm">
-            <span className="section-label">Total Completed</span>
+            <span className="section-label">XP Earned</span>
             <h2 style={{ margin: 0, fontSize: "2rem", letterSpacing: "-0.04em" }}>
-              {progress.completedIds.length}
+              {progress.xp}
             </h2>
-            <p className="page-copy">Combined across coding challenges and language lessons.</p>
+            <p className="page-copy">XP is now calculated from solved coding challenges only.</p>
           </div>
           <div className="stat-card fade-in fade-in-3 stack-sm">
-            <span className="section-label">Coding Solved</span>
+            <span className="section-label">Challenges Solved</span>
             <h2 style={{ margin: 0, fontSize: "2rem", letterSpacing: "-0.04em" }}>
-              {codingSolved}
+              {solvedCount}
             </h2>
             <p className="page-copy">{codingChallenges.length} total coding challenges available.</p>
           </div>
           <div className="stat-card fade-in fade-in-4 stack-sm">
-            <span className="section-label">Language Lessons</span>
+            <span className="section-label">Current Streak</span>
             <h2 style={{ margin: 0, fontSize: "2rem", letterSpacing: "-0.04em" }}>
-              {languageSolved}
+              {progress.streak}
             </h2>
-            <p className="page-copy">{languageLessons.length} total lessons available.</p>
+            <p className="page-copy">
+              {completionRate}% complete with {remainingCount} challenges remaining.
+            </p>
+          </div>
+          <div className="stat-card fade-in fade-in-4 stack-sm">
+            <span className="section-label">Adaptive Difficulty</span>
+            <h2 style={{ margin: 0, fontSize: "2rem", letterSpacing: "-0.04em" }}>
+              {adaptiveDifficultyLabel}
+            </h2>
+            <p className="page-copy">
+              Based on your recent test outcomes, the next suggested track is{" "}
+              {adaptiveDifficultyLabel.toLowerCase()}.
+            </p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="split-grid">
-        <div className="list-panel fade-in fade-in-2">
-          <div className="stack-sm">
-            <span className="section-label">Coding Checklist</span>
-            <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>All coding challenges</h2>
-          </div>
+      <motion.section className="list-panel" {...sectionMotion(0.12)}>
+        <div className="stack-sm">
+          <span className="section-label">Weak Topics</span>
+          <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>Targeted practice areas</h2>
+        </div>
 
-          <div style={{ marginTop: "1rem" }}>
-            {codingChallenges.map((challenge) => (
-              <div className="list-row" key={challenge.id}>
+        <div style={{ marginTop: "1rem" }}>
+          {weakTopics.length ? (
+            weakTopics.map((topic) => (
+              <div className="list-row" key={topic.topic}>
                 <div className="list-row-main">
-                  <span
-                    className={`circle ${
-                      completedIds.has(challenge.id) ? "circle-done" : "circle-empty"
-                    }`}
-                  />
+                  <span className="circle circle-empty" />
                   <div className="list-row-copy">
-                    <h3 className="list-row-title">{challenge.title}</h3>
-                    <p className="list-row-desc">{challenge.description}</p>
+                    <h3 className="list-row-title">{topic.topic}</h3>
+                    <p className="list-row-desc">
+                      {topic.attempts} attempts with {Math.round((1 - topic.passRate) * 100)}% error rate.
+                    </p>
                   </div>
                 </div>
-                <span className="badge badge-gray mono">{challenge.xp} XP</span>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <p className="page-copy" style={{ margin: 0 }}>
+              Weak topics will appear after a few test runs.
+            </p>
+          )}
+        </div>
+      </motion.section>
+
+      <motion.section className="list-panel" {...sectionMotion(0.17)}>
+        <div className="stack-sm">
+          <span className="section-label">Challenge Checklist</span>
+          <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>All coding challenges</h2>
         </div>
 
-        <div className="stack-md fade-in fade-in-3">
-          <div className="list-panel">
-            <div className="stack-sm">
-              <span className="section-label">Language Progress</span>
-              <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>By language</h2>
-            </div>
-          </div>
-
-          {languageGroups.map((group) => (
-            <div className="language-group stack-md" key={group.lang}>
-              <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
-                <h3 style={{ margin: 0, letterSpacing: "-0.03em" }}>{group.lang}</h3>
-                <span className="badge badge-gray mono">
-                  {group.completed}/{group.lessons.length}
-                </span>
-              </div>
-              <div className="mini-track">
-                <div
-                  className="mini-fill"
-                  style={{
-                    width: `${Math.round((group.completed / Math.max(group.lessons.length, 1)) * 100)}%`
-                  }}
+        <div style={{ marginTop: "1rem" }}>
+          {codingChallenges.map((challenge) => (
+            <div className="list-row" key={challenge.id}>
+              <div className="list-row-main">
+                <span
+                  className={`circle ${
+                    completedIds.has(challenge.id) ? "circle-done" : "circle-empty"
+                  }`}
                 />
+                <div className="list-row-copy">
+                  <h3 className="list-row-title">{challenge.title}</h3>
+                  <p className="list-row-desc">{challenge.description}</p>
+                </div>
               </div>
-
-              <div>
-                {group.lessons.map((lesson) => (
-                  <div className="list-row" key={lesson.id}>
-                    <div className="list-row-main">
-                      <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>{lesson.flag}</span>
-                      <div className="list-row-copy">
-                        <h4 className="list-row-title">
-                          {lesson.lang} · {lesson.topic}
-                        </h4>
-                        <p className="list-row-desc">{lesson.description}</p>
-                      </div>
-                    </div>
-                    <span
-                      className={`badge ${
-                        completedIds.has(lesson.id) ? "badge-green" : "badge-gray"
-                      }`}
-                    >
-                      {completedIds.has(lesson.id) ? "Done" : `${lesson.xp} XP`}
-                    </span>
-                  </div>
-                ))}
+              <div className="row-meta">
+                <span className="badge badge-gray mono">{challenge.language.toUpperCase()}</span>
+                <span className="badge badge-blue">{challenge.xp} XP</span>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 }

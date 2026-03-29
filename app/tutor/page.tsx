@@ -1,53 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import MessageContent from "@/components/MessageContent";
-import type { AiMode } from "@/lib/gemini";
 
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
 
-const modeLabels: Array<{ value: AiMode; label: string }> = [
-  { value: "general", label: "General" },
-  { value: "coding", label: "Coding" },
-  { value: "language", label: "Languages" }
+const starterPrompts = [
+  "Help me break down a beginner JavaScript problem without solving it.",
+  "What is a practical debugging checklist for coding challenges?",
+  "Explain closures in a simple way with a tiny example."
 ];
 
-const starterPrompts: Record<AiMode, string[]> = {
-  general: [
-    "Give me a 20-minute study plan for coding and language practice today.",
-    "How can I balance learning JavaScript and Spanish in the same week?",
-    "Quiz me with one coding question and one language question."
-  ],
-  coding: [
-    "Help me break down a beginner JavaScript problem without giving the full answer.",
-    "What is a good debugging checklist for coding challenges?",
-    "Explain closures in a simple way with a tiny example."
-  ],
-  language: [
-    "Teach me a short Spanish travel phrase with pronunciation help.",
-    "Quiz me on beginner French greetings.",
-    "How should I practice Japanese hiragana for 10 minutes?"
-  ]
-};
+const placeholder = "Ask for a hint, debugging help, or a concept explanation...";
 
-const placeholders: Record<AiMode, string> = {
-  general: "Ask about learning strategy, mixed practice, or study planning...",
-  coding: "Ask for a hint, debugging help, or a concept explanation...",
-  language: "Ask for vocabulary help, translations, examples, or practice..."
-};
-
-export default function LearnPage() {
-  const [mode, setMode] = useState<AiMode>("general");
+export default function TutorPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const logRef = useRef<HTMLDivElement | null>(null);
-
-  const starters = useMemo(() => starterPrompts[mode], [mode]);
 
   useEffect(() => {
     const container = logRef.current;
@@ -80,7 +54,9 @@ export default function LearnPage() {
         },
         body: JSON.stringify({
           messages: nextMessages,
-          mode
+          mode: "coding",
+          context:
+            "This is the main AI tutor inside CodeQuest. Prefer guided hints, debugging steps, and concept explanations over full solutions."
         })
       });
 
@@ -113,13 +89,6 @@ export default function LearnPage() {
     }
   };
 
-  const resetMode = (nextMode: AiMode) => {
-    setMode(nextMode);
-    setMessages([]);
-    setInput("");
-    setLoading(false);
-  };
-
   return (
     <div className="page-shell-tight">
       <div className="chat-shell">
@@ -127,24 +96,12 @@ export default function LearnPage() {
           <span className="section-label">AI Tutor</span>
           <div className="stack-sm">
             <h1 className="page-heading" style={{ fontSize: "clamp(1.8rem, 3vw, 2.7rem)" }}>
-              Learn with Gemini across code and languages
+              Get coding help without leaving the platform
             </h1>
             <p className="page-copy">
-              Switch modes any time. Changing modes clears the conversation so each tutoring session
-              stays focused.
+              Use the tutor for challenge hints, debugging guidance, or quick concept refreshers
+              while keeping the conversation focused on programming.
             </p>
-          </div>
-          <div className="tabs">
-            {modeLabels.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                className={`pill ${mode === item.value ? "pill-active" : ""}`}
-                onClick={() => resetMode(item.value)}
-              >
-                {item.label}
-              </button>
-            ))}
           </div>
         </section>
 
@@ -152,17 +109,17 @@ export default function LearnPage() {
           {!messages.length && (
             <div className="stack-lg">
               <div className="empty-note">
-                Start with a prompt below or type your own question. The tutor will adapt to the{" "}
-                {mode === "language" ? "language" : mode} mode you selected.
+                Start with a prompt below or type your own question. The tutor stays focused on
+                coding concepts, debugging, and challenge-solving strategy.
               </div>
 
               <div className="chip-row">
-                {starters.map((prompt) => (
+                {starterPrompts.map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
                     className="chip"
-                    onClick={() => sendMessage(prompt)}
+                    onClick={() => void sendMessage(prompt)}
                   >
                     {prompt}
                   </button>
@@ -188,7 +145,7 @@ export default function LearnPage() {
               <div className="chat-bubble chat-bubble-assistant">
                 <div className="inline-cluster">
                   <span className="spin" aria-hidden="true">
-                    ↻
+                    ...
                   </span>
                   <span className="text-muted">Thinking...</span>
                 </div>
@@ -203,7 +160,7 @@ export default function LearnPage() {
               className="textarea-input"
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder={placeholders[mode]}
+              placeholder={placeholder}
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();

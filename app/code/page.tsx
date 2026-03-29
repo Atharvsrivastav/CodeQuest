@@ -9,17 +9,17 @@ type EditorLanguage = "javascript" | "typescript" | "python";
 
 const starterCode: Record<EditorLanguage, string> = {
   javascript:
-    'const name = "Learnly";\nconst days = 7;\n\nconsole.log(`Practicing with ${name} for ${days} days.`);',
+    'const platform = "CodeQuest";\nconst sessions = 7;\n\nconsole.log(`Shipping practice with ${platform} for ${sessions} days.`);',
   typescript:
     'type Session = {\n  topic: string;\n  minutes: number;\n};\n\nconst session: Session = { topic: "TypeScript", minutes: 25 };\nconsole.log(`${session.topic}: ${session.minutes} minutes`);',
   python:
-    'language = "Python"\nminutes = 30\n\nprint(f"Practicing {language} for {minutes} minutes")'
+    'track = "Python"\nminutes = 30\n\nprint(f"Practicing {track} for {minutes} minutes")'
 };
 
 export default function CodePage() {
   const [language, setLanguage] = useState<EditorLanguage>("javascript");
   const [code, setCode] = useState(starterCode.javascript);
-  const [output, setOutput] = useState("Run your code to see Gemini simulate the console output.");
+  const [output, setOutput] = useState("Run your code to have AI simulate the console output.");
   const [loading, setLoading] = useState(false);
 
   const languageLabel = useMemo(() => {
@@ -36,7 +36,7 @@ export default function CodePage() {
 
   useEffect(() => {
     setCode(starterCode[language]);
-    setOutput("Run your code to see Gemini simulate the console output.");
+    setOutput("Run your code to have AI simulate the console output.");
   }, [language]);
 
   const runCode = async () => {
@@ -53,9 +53,9 @@ export default function CodePage() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          mode: "general",
+          mode: "editor",
           context:
-            "The user is working in Learnly's free editor. Simulate console output only. Return raw output with no explanations. If nothing is printed, respond with (no output).",
+            "The user is working in CodeQuest's editor. Simulate console output only and return raw output with no explanations.",
           messages: [
             {
               role: "user",
@@ -96,8 +96,8 @@ export default function CodePage() {
           Experiment with code in a clean workspace
         </h1>
         <p className="page-copy">
-          Write code, switch languages, and ask Gemini to simulate the console output with no extra
-          explanation.
+          Switch between JavaScript, TypeScript, and Python, then use AI to simulate output while
+          you iterate on ideas quickly.
         </p>
       </section>
 
@@ -140,7 +140,7 @@ export default function CodePage() {
                   {loading ? (
                     <>
                       <span className="spin" aria-hidden="true">
-                        ↻
+                        ...
                       </span>
                       Running
                     </>

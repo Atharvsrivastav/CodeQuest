@@ -1,57 +1,61 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 import ProgressBar from "@/components/ProgressBar";
-import {
-  codingChallenges,
-  languageLessons,
-  totalAvailableXp
-} from "@/lib/data";
-import { useLearnlyProgress } from "@/lib/useProgress";
+import { codingChallenges, totalChallengeXp } from "@/lib/challenges";
+import { useProgress } from "@/lib/useProgress";
 
 const featureCards = [
   {
-    href: "/learn",
+    href: "/tutor",
     title: "AI Tutor",
-    copy: "Switch between general, coding, and language tutoring with Gemini-powered guidance."
+    copy: "Ask for hints, debugging help, and concept explanations without leaving the platform."
   },
   {
     href: "/code",
     title: "Editor",
-    copy: "Use the free editor to explore JavaScript, TypeScript, and Python in one place."
+    copy: "Prototype in JavaScript, TypeScript, and Python with AI-simulated console output."
   },
   {
     href: "/progress",
     title: "Progress",
-    copy: "Track XP, review completed work, and see how your learning is stacking up."
+    copy: "Track solved challenges, XP earned, and the remaining challenge backlog."
   }
 ];
 
 export default function HomePage() {
-  const progress = useLearnlyProgress();
+  const progress = useProgress();
   const completedIds = new Set(progress.completedIds);
-  const recentChallenges = codingChallenges.slice(0, 3);
-  const recentLessons = languageLessons.slice(0, 4);
+  const recentChallenges = codingChallenges.slice(0, 4);
+  const solvedCount = progress.completedIds.length;
+  const completionRate = Math.round((solvedCount / Math.max(codingChallenges.length, 1)) * 100);
+  const sectionMotion = (delay = 0) => ({
+    initial: false as const,
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.2 },
+    transition: { duration: 0.45, delay, ease: "easeOut" as const }
+  });
 
   return (
     <div className="page-shell stack-lg">
-      <section className="card fade-in fade-in-1 stack-lg">
+      <motion.section className="card stack-lg" {...sectionMotion(0.05)}>
         <div className="stack-md">
-          <span className="section-label">Unified Learning</span>
+          <span className="section-label">AI Coding Platform</span>
           <div className="hero-grid">
             <div className="stack-md">
-              <h1 className="page-heading">Learn to code. Learn a language. Do both.</h1>
+              <h1 className="page-heading">Practice code with challenges, tutoring, and a live workspace.</h1>
               <p className="page-copy">
-                Learnly brings coding drills, spoken-language lessons, and an AI tutor into one
-                clean daily practice loop.
+                CodeQuest keeps the entire experience centered on programming so learners can solve
+                challenges, get AI guidance, and measure progress in one focused workflow.
               </p>
               <div className="inline-cluster">
                 <Link href="/challenges" className="btn btn-primary">
-                  Explore Coding
+                  Start Challenges
                 </Link>
-                <Link href="/languages" className="btn btn-ghost">
-                  Explore Languages
+                <Link href="/tutor" className="btn btn-ghost">
+                  Open Tutor
                 </Link>
               </div>
             </div>
@@ -66,40 +70,34 @@ export default function HomePage() {
                     {progress.xp} XP
                   </h2>
                 </div>
-                <span className="badge badge-blue">{progress.completedIds.length} completed</span>
+                <span className="badge badge-blue">{solvedCount} completed</span>
               </div>
               <p className="page-copy">
-                Move between beginner coding challenges and practical language lessons without
-                leaving the same workspace.
+                Stay inside one coding loop: pick a challenge, ask for help when you need it, then
+                track the XP you earn as you solve.
               </p>
               <div className="row-meta">
-                <span className="badge badge-gray mono">{codingChallenges.length} coding tasks</span>
-                <span className="badge badge-gray mono">
-                  {languageLessons.length} language lessons
-                </span>
+                <span className="badge badge-gray mono">{codingChallenges.length} challenges</span>
+                <span className="badge badge-gray mono">{completionRate}% complete</span>
               </div>
             </div>
           </div>
         </div>
 
         {progress.xp > 0 && (
-          <ProgressBar
-            value={progress.xp}
-            max={totalAvailableXp}
-            label="Overall XP progress"
-          />
+          <ProgressBar value={progress.xp} max={totalChallengeXp} label="Challenge XP progress" />
         )}
-      </section>
+      </motion.section>
 
-      <section className="split-grid">
-        <div className="list-panel fade-in fade-in-2">
+      <motion.section className="split-grid" {...sectionMotion(0.12)}>
+        <div className="list-panel stack-sm">
           <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
             <div>
-              <p className="section-label">Coding Track</p>
+              <p className="section-label">Challenge Track</p>
               <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>Recent challenges</h2>
             </div>
             <Link href="/challenges" className="btn btn-ghost">
-              View all
+              Browse all
             </Link>
           </div>
 
@@ -126,59 +124,63 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="list-panel fade-in fade-in-3">
-          <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
-            <div>
-              <p className="section-label">Language Track</p>
-              <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>Recent lessons</h2>
-            </div>
-            <Link href="/languages" className="btn btn-ghost">
-              View all
-            </Link>
+        <div className="list-panel stack-sm">
+          <div className="stack-sm">
+            <p className="section-label">Platform Focus</p>
+            <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>Everything points back to coding practice</h2>
           </div>
 
-          <div style={{ marginTop: "1rem" }}>
-            {recentLessons.map((lesson) => {
-              const completed = completedIds.has(lesson.id);
-
-              return (
-                <Link href={`/languages/${lesson.id}`} className="list-row" key={lesson.id}>
-                  <div className="list-row-main">
-                    <span style={{ fontSize: "1.4rem", lineHeight: 1 }}>{lesson.flag}</span>
-                    <div className="list-row-copy">
-                      <h3 className="list-row-title">
-                        {lesson.lang} · {lesson.topic}
-                      </h3>
-                      <p className="list-row-desc">{lesson.description}</p>
-                    </div>
-                  </div>
-                  <div className="row-meta">
-                    <span className={`badge ${completed ? "badge-green" : "badge-gray"}`}>
-                      {completed ? "Done" : `${lesson.xp} XP`}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+          <div style={{ marginTop: "1rem" }} className="stack-md">
+            <div className="list-row">
+              <div className="list-row-copy">
+                <h3 className="list-row-title">Challenge-first flow</h3>
+                <p className="list-row-desc">
+                  Home, tutor, and progress now revolve around coding challenge execution instead of
+                  mixed learning tracks.
+                </p>
+              </div>
+            </div>
+            <div className="list-row">
+              <div className="list-row-copy">
+                <h3 className="list-row-title">AI help without context switching</h3>
+                <p className="list-row-desc">
+                  Use the dedicated tutor for concepts or the challenge-level tutor for targeted
+                  nudges while staying in the same product.
+                </p>
+              </div>
+            </div>
+            <div className="list-row">
+              <div className="list-row-copy">
+                <h3 className="list-row-title">Progress that matches the product</h3>
+                <p className="list-row-desc">
+                  XP and completion rates now reflect coding challenges only, including migrated
+                  local progress from the previous mixed app.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      <section className="feature-grid">
+      <motion.section className="feature-grid" {...sectionMotion(0.18)}>
         {featureCards.map((card, index) => (
-          <Link
-            href={card.href}
-            className={`feature-link fade-in fade-in-${Math.min(index + 2, 4)}`}
+          <motion.div
             key={card.href}
+            initial={false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 0.35, delay: 0.08 + index * 0.05, ease: "easeOut" }}
           >
-            <p className="section-label">{card.title}</p>
-            <h3 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem", letterSpacing: "-0.03em" }}>
-              {card.title}
-            </h3>
-            <p className="page-copy">{card.copy}</p>
-          </Link>
+            <Link href={card.href} className="feature-link">
+              <p className="section-label">{card.title}</p>
+              <h3 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem", letterSpacing: "-0.03em" }}>
+                {card.title}
+              </h3>
+              <p className="page-copy">{card.copy}</p>
+            </Link>
+          </motion.div>
         ))}
-      </section>
+      </motion.section>
     </div>
   );
 }
