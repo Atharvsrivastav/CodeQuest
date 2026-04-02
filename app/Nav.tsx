@@ -8,6 +8,7 @@ import { useTheme } from "@/lib/theme";
 
 const links = [
   { href: "/", label: "Home" },
+  { href: "/adaptive-tutor", label: "Adaptive Tutor" },
   { href: "/challenges", label: "Challenges" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/tutor", label: "AI Tutor" },
@@ -39,8 +40,14 @@ export default function Nav() {
     <header className="nav">
       <div className="nav-inner">
         <Link href="/" className="nav-brand">
-          <span className="nav-dot" aria-hidden="true" />
-          <span>CodeQuest</span>
+          <span className="nav-brand-mark" aria-hidden="true">
+            <span className="nav-dot" />
+            <span className="nav-dot-secondary" />
+          </span>
+          <span className="nav-brand-copy">
+            <strong>CodeQuest</strong>
+            <span>Guided coding practice</span>
+          </span>
         </Link>
 
         <div className="nav-end">
@@ -63,7 +70,7 @@ export default function Nav() {
             aria-label="Toggle color theme"
             title="Toggle color theme"
           >
-            {resolved ? (theme === "dark" ? "Light" : "Dark") : "Theme"}
+            {resolved ? (theme === "dark" ? "Light mode" : "Dark mode") : "Theme"}
           </button>
 
           <div className="nav-session">

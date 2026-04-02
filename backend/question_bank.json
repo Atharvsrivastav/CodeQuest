@@ -1,0 +1,290 @@
+[
+  {
+    "id": "python-function-keyword",
+    "category": "Python",
+    "difficulty": "easy",
+    "prompt": "Which keyword is used to define a function in Python?",
+    "options": ["def", "func", "function", "lambda"],
+    "correct_option": "def",
+    "fallback_explanations": {
+      "English": "In Python, `def` is the standard keyword for creating a named function. `lambda` is only used for short anonymous functions.",
+      "Hindi": "Python में named function बनाने के लिए `def` keyword इस्तेमाल होता है। `lambda` सिर्फ छोटी anonymous functions के लिए होता है।",
+      "German": "In Python wird mit `def` eine benannte Funktion erstellt. `lambda` wird nur für kurze anonyme Funktionen verwendet."
+    }
+  },
+  {
+    "id": "javascript-array-push",
+    "category": "JavaScript",
+    "difficulty": "easy",
+    "prompt": "Which JavaScript array method adds an item to the end of an array?",
+    "options": ["push()", "append()", "add()", "insert()"],
+    "correct_option": "push()",
+    "fallback_explanations": {
+      "English": "`push()` adds one or more items to the end of a JavaScript array. Methods like `append()` belong to other languages, not standard JavaScript arrays.",
+      "Hindi": "`push()` JavaScript array के आखिर में नया item जोड़ता है। `append()` जैसे methods standard JavaScript arrays में नहीं होते।",
+      "German": "`push()` fuegt ein oder mehrere Elemente am Ende eines JavaScript-Arrays hinzu. `append()` gehoert nicht zu den Standardmethoden von JavaScript-Arrays."
+    }
+  },
+  {
+    "id": "sql-read-data",
+    "category": "SQL",
+    "difficulty": "easy",
+    "prompt": "Which SQL command is used to read data from a table?",
+    "options": ["SELECT", "READ", "GET", "FETCH"],
+    "correct_option": "SELECT",
+    "fallback_explanations": {
+      "English": "`SELECT` is the SQL command used to retrieve rows from a table. The other options are not the standard command for basic querying.",
+      "Hindi": "`SELECT` SQL में table से data निकालने के लिए standard command है। बाकी options basic query के लिए standard command नहीं हैं।",
+      "German": "`SELECT` ist der Standardbefehl in SQL, um Daten aus einer Tabelle abzurufen. Die anderen Optionen sind dafuer nicht der uebliche SQL-Befehl."
+    }
+  },
+  {
+    "id": "cpp-single-line-comment",
+    "category": "C++",
+    "difficulty": "easy",
+    "prompt": "Which symbol starts a single-line comment in C++?",
+    "options": ["//", "#", "/*", "--"],
+    "correct_option": "//",
+    "fallback_explanations": {
+      "English": "In C++, `//` starts a comment that continues to the end of the line. `/*` starts a block comment, not a single-line comment.",
+      "Hindi": "C++ में `//` single-line comment शुरू करता है और line के अंत तक चलता है। `/*` block comment शुरू करता है, single-line comment नहीं।",
+      "German": "In C++ beginnt `//` einen Kommentar bis zum Ende der Zeile. `/*` startet dagegen einen Blockkommentar."
+    }
+  },
+  {
+    "id": "java-entry-point",
+    "category": "Java",
+    "difficulty": "easy",
+    "prompt": "Which method is the entry point of a standard Java application?",
+    "options": ["main", "start", "run", "init"],
+    "correct_option": "main",
+    "fallback_explanations": {
+      "English": "A standard Java program starts from the `main` method. That is the method the JVM looks for when launching the application.",
+      "Hindi": "Standard Java program `main` method से शुरू होता है। Application launch करते समय JVM इसी method को ढूंढती है।",
+      "German": "Ein normales Java-Programm startet in der Methode `main`. Die JVM sucht beim Start genau nach dieser Methode."
+    }
+  },
+  {
+    "id": "typescript-static-types",
+    "category": "TypeScript",
+    "difficulty": "easy",
+    "prompt": "What does TypeScript add to JavaScript?",
+    "options": ["Static types", "A database", "A browser", "A package manager"],
+    "correct_option": "Static types",
+    "fallback_explanations": {
+      "English": "TypeScript adds static typing on top of JavaScript. That helps catch mistakes earlier while you write code.",
+      "Hindi": "TypeScript, JavaScript के ऊपर static typing जोड़ता है। इससे code लिखते समय गलतियां जल्दी पकड़ में आती हैं।",
+      "German": "TypeScript fuegt JavaScript statische Typen hinzu. Dadurch lassen sich Fehler frueher beim Schreiben des Codes erkennen."
+    }
+  },
+  {
+    "id": "python-first-index",
+    "category": "Python",
+    "difficulty": "easy",
+    "prompt": "What is the index of the first item in a Python list?",
+    "options": ["0", "1", "-1", "First"],
+    "correct_option": "0",
+    "fallback_explanations": {
+      "English": "Python lists use zero-based indexing, so the first item is at index `0`. Index `1` points to the second item.",
+      "Hindi": "Python lists zero-based indexing इस्तेमाल करती हैं, इसलिए पहला item index `0` पर होता है। Index `1` दूसरे item के लिए है।",
+      "German": "Python-Listen verwenden eine nullbasierte Indizierung. Deshalb liegt das erste Element an Index `0`."
+    }
+  },
+  {
+    "id": "python-dict-membership",
+    "category": "Python",
+    "difficulty": "medium",
+    "prompt": "How do you check whether the key \"name\" exists in the Python dictionary `user`?",
+    "options": ["\"name\" in user", "user.has(\"name\")", "contains(user, \"name\")", "user.includes(\"name\")"],
+    "correct_option": "\"name\" in user",
+    "fallback_explanations": {
+      "English": "In Python, the `in` operator checks whether a key exists in a dictionary. So `\"name\" in user` returns `True` when that key is present.",
+      "Hindi": "Python में dictionary के key को check करने के लिए `in` operator इस्तेमाल होता है। इसलिए `\"name\" in user` key मौजूद होने पर `True` देता है।",
+      "German": "In Python prueft der Operator `in`, ob ein Schluessel in einem Dictionary vorhanden ist. Deshalb liefert `\"name\" in user` bei vorhandenem Schluessel `True`."
+    }
+  },
+  {
+    "id": "javascript-strict-equality",
+    "category": "JavaScript",
+    "difficulty": "medium",
+    "prompt": "Which JavaScript operator checks both value and type?",
+    "options": ["===", "==", "=", "!=="],
+    "correct_option": "===",
+    "fallback_explanations": {
+      "English": "`===` checks both value and type in JavaScript. `==` can coerce values, which may create surprising results.",
+      "Hindi": "JavaScript में `===` value और type दोनों को check करता है। `==` type conversion कर सकता है, जिससे confusing results आ सकते हैं।",
+      "German": "`===` vergleicht in JavaScript sowohl den Wert als auch den Typ. `==` kann Werte vorher umwandeln und dadurch unerwartete Ergebnisse erzeugen."
+    }
+  },
+  {
+    "id": "java-arraylist-package",
+    "category": "Java",
+    "difficulty": "medium",
+    "prompt": "Which Java package contains `ArrayList`?",
+    "options": ["java.util", "java.lang", "java.io", "java.net"],
+    "correct_option": "java.util",
+    "fallback_explanations": {
+      "English": "`ArrayList` is part of Java's collections framework, which lives in `java.util`. That package includes many useful data structure classes.",
+      "Hindi": "`ArrayList`, Java collections framework का हिस्सा है और `java.util` package में मिलता है। इसी package में कई common data structures भी होते हैं।",
+      "German": "`ArrayList` gehoert zum Collections Framework von Java und liegt im Paket `java.util`. Dort befinden sich viele haeufig genutzte Datenstrukturen."
+    }
+  },
+  {
+    "id": "cpp-vector-purpose",
+    "category": "C++",
+    "difficulty": "medium",
+    "prompt": "What is `std::vector` mainly used for in C++?",
+    "options": ["A dynamic array", "A SQL table", "A thread", "A compiler flag"],
+    "correct_option": "A dynamic array",
+    "fallback_explanations": {
+      "English": "`std::vector` is a resizable array in C++. It grows as needed, so it is a common choice when you want array-like storage with dynamic size.",
+      "Hindi": "`std::vector` C++ में resizable array होता है। जरूरत के हिसाब से इसका size बढ़ सकता है, इसलिए dynamic storage के लिए यह common choice है।",
+      "German": "`std::vector` ist in C++ ein dynamisches Array. Es kann bei Bedarf wachsen und wird deshalb oft fuer flexibel grosse Listen verwendet."
+    }
+  },
+  {
+    "id": "sql-count-rows",
+    "category": "SQL",
+    "difficulty": "medium",
+    "prompt": "Which SQL expression counts all rows in a result set?",
+    "options": ["COUNT(*)", "TOTAL()", "ROWS()", "SUM(*)"],
+    "correct_option": "COUNT(*)",
+    "fallback_explanations": {
+      "English": "`COUNT(*)` returns the number of rows in the result set. It is the standard SQL way to count rows.",
+      "Hindi": "`COUNT(*)` result set में rows की कुल संख्या देता है। Rows count करने का यह standard SQL तरीका है।",
+      "German": "`COUNT(*)` liefert die Anzahl der Zeilen im Ergebnis. Das ist der Standardweg in SQL, um Zeilen zu zaehlen."
+    }
+  },
+  {
+    "id": "typescript-interface-purpose",
+    "category": "TypeScript",
+    "difficulty": "medium",
+    "prompt": "What is a common use of an interface in TypeScript?",
+    "options": ["Describe the shape of an object", "Start a web server", "Compile CSS", "Store database records"],
+    "correct_option": "Describe the shape of an object",
+    "fallback_explanations": {
+      "English": "An interface in TypeScript describes what properties and method shapes an object should have. It helps keep data structures clear and consistent.",
+      "Hindi": "TypeScript में interface यह बताता है कि किसी object में कौन-सी properties और methods होनी चाहिए। इससे structure साफ और consistent रहता है।",
+      "German": "Ein Interface in TypeScript beschreibt, welche Eigenschaften und Methoden ein Objekt haben soll. Das sorgt fuer klare und konsistente Datenstrukturen."
+    }
+  },
+  {
+    "id": "python-enumerate",
+    "category": "Python",
+    "difficulty": "medium",
+    "prompt": "What does `enumerate(items)` usually provide inside a Python loop?",
+    "options": ["Index and value pairs", "Only values", "Only indexes", "Sorted values"],
+    "correct_option": "Index and value pairs",
+    "fallback_explanations": {
+      "English": "`enumerate(items)` gives you both the index and the value as you loop. It is useful when you need position information together with each item.",
+      "Hindi": "`enumerate(items)` loop के दौरान index और value दोनों देता है। जब item के साथ position भी चाहिए हो, तब यह बहुत useful होता है।",
+      "German": "`enumerate(items)` liefert beim Durchlaufen sowohl den Index als auch den Wert. Das ist praktisch, wenn du den Positionswert mit dem Element brauchst."
+    }
+  },
+  {
+    "id": "javascript-async-return",
+    "category": "JavaScript",
+    "difficulty": "hard",
+    "prompt": "What does an `async` function always return in JavaScript?",
+    "options": ["A Promise", "A callback", "An array", "A generator"],
+    "correct_option": "A Promise",
+    "fallback_explanations": {
+      "English": "An `async` function always returns a Promise, even when you return a plain value. JavaScript automatically wraps that value in a resolved Promise.",
+      "Hindi": "JavaScript में `async` function हमेशा Promise लौटाता है, चाहे आप plain value ही क्यों न return करें। JavaScript उस value को resolved Promise में wrap कर देता है।",
+      "German": "Eine `async`-Funktion gibt in JavaScript immer ein Promise zurueck, selbst wenn du einen normalen Wert returnst. JavaScript verpackt ihn automatisch in ein erfuelltes Promise."
+    }
+  },
+  {
+    "id": "python-generator-yield",
+    "category": "Python",
+    "difficulty": "hard",
+    "prompt": "Which keyword turns a Python function into a generator?",
+    "options": ["yield", "return", "async", "next"],
+    "correct_option": "yield",
+    "fallback_explanations": {
+      "English": "Using `yield` makes a Python function produce values one at a time, which creates a generator. `return` ends the function instead of pausing it for the next value.",
+      "Hindi": "Python में `yield` इस्तेमाल करने पर function values को एक-एक करके देता है और generator बन जाता है। `return` function को खत्म कर देता है, pause नहीं करता।",
+      "German": "Mit `yield` gibt eine Python-Funktion Werte nacheinander aus und wird zu einem Generator. `return` beendet die Funktion dagegen direkt."
+    }
+  },
+  {
+    "id": "sql-inner-join",
+    "category": "SQL",
+    "difficulty": "hard",
+    "prompt": "What does an `INNER JOIN` return?",
+    "options": [
+      "Only rows with matches in both tables",
+      "All rows from the left table only",
+      "All rows from both tables even without matches",
+      "Only duplicate rows"
+    ],
+    "correct_option": "Only rows with matches in both tables",
+    "fallback_explanations": {
+      "English": "An `INNER JOIN` keeps only the rows where the join condition matches in both tables. Rows without a match are left out.",
+      "Hindi": "`INNER JOIN` सिर्फ वही rows रखता है जिनमें दोनों tables में join condition match होती है। जिन rows का match नहीं मिलता, वे result में नहीं आतीं।",
+      "German": "Ein `INNER JOIN` liefert nur die Zeilen, fuer die die Join-Bedingung in beiden Tabellen passt. Zeilen ohne Treffer werden ausgeschlossen."
+    }
+  },
+  {
+    "id": "typescript-unknown-safer",
+    "category": "TypeScript",
+    "difficulty": "hard",
+    "prompt": "Why is `unknown` usually safer than `any` in TypeScript?",
+    "options": [
+      "You must narrow it before using it",
+      "It runs faster in the browser",
+      "It automatically becomes a string",
+      "It can only store numbers"
+    ],
+    "correct_option": "You must narrow it before using it",
+    "fallback_explanations": {
+      "English": "`unknown` forces you to check or narrow the value before you use it. That extra step protects you from unsafe operations that `any` would allow silently.",
+      "Hindi": "`unknown` में value इस्तेमाल करने से पहले आपको उसे check या narrow करना पड़ता है। यही extra safety `any` से बेहतर बनाती है, क्योंकि `any` कई unsafe operations को चुपचाप allow कर देता है।",
+      "German": "`unknown` zwingt dich dazu, einen Wert vor der Nutzung zu pruefen oder einzugrenzen. Genau das macht ihn sicherer als `any`, das unsichere Operationen oft stillschweigend erlaubt."
+    }
+  },
+  {
+    "id": "java-hashmap-lookups",
+    "category": "Java",
+    "difficulty": "hard",
+    "prompt": "What is the average-case lookup time for a `HashMap` in Java?",
+    "options": ["O(1)", "O(log n)", "O(n)", "O(n log n)"],
+    "correct_option": "O(1)",
+    "fallback_explanations": {
+      "English": "A `HashMap` is designed for average-case constant-time lookup, written as `O(1)`. In practice that means fetching a value is usually very fast.",
+      "Hindi": "`HashMap` का average-case lookup time constant माना जाता है, जिसे `O(1)` लिखा जाता है। Practical terms में इसका मतलब है कि value ढूंढना आम तौर पर बहुत तेज होता है।",
+      "German": "Ein `HashMap` ist fuer Zugriffe im durchschnittlichen konstanten Zeitaufwand ausgelegt, also `O(1)`. Das bedeutet in der Praxis meist sehr schnelle Nachschlaege."
+    }
+  },
+  {
+    "id": "cpp-pass-by-reference",
+    "category": "C++",
+    "difficulty": "hard",
+    "prompt": "Which parameter style lets a C++ function modify the original variable that was passed in?",
+    "options": ["Pass by reference with &", "Pass by value", "Pass by copy", "Pass by namespace"],
+    "correct_option": "Pass by reference with &",
+    "fallback_explanations": {
+      "English": "Passing by reference with `&` lets the function work with the original variable instead of a copy. That means changes inside the function affect the caller's variable too.",
+      "Hindi": "`&` के साथ pass by reference करने पर function copy के बजाय original variable पर काम करता है। इसलिए function के अंदर किए गए बदलाव caller की variable पर भी असर डालते हैं।",
+      "German": "Bei der Uebergabe per Referenz mit `&` arbeitet die Funktion mit der Originalvariablen statt mit einer Kopie. Dadurch wirken sich Aenderungen in der Funktion auch ausserhalb aus."
+    }
+  },
+  {
+    "id": "javascript-event-loop-order",
+    "category": "JavaScript",
+    "difficulty": "hard",
+    "prompt": "After the current call stack is empty, which callback runs first in JavaScript?",
+    "options": [
+      "A resolved Promise callback",
+      "setTimeout(fn, 0)",
+      "They always run together",
+      "Whichever was written first in the file"
+    ],
+    "correct_option": "A resolved Promise callback",
+    "fallback_explanations": {
+      "English": "Resolved Promise callbacks run in the microtask queue, which is processed before the timer queue. So a Promise callback usually runs before `setTimeout(fn, 0)`.",
+      "Hindi": "Resolved Promise callbacks microtask queue में जाते हैं, और यह queue timer queue से पहले चलती है। इसलिए Promise callback आम तौर पर `setTimeout(fn, 0)` से पहले चलता है।",
+      "German": "Aufgeloeste Promise-Callbacks landen in der Microtask-Queue, die vor der Timer-Queue abgearbeitet wird. Deshalb laeuft ein Promise-Callback in der Regel vor `setTimeout(fn, 0)`."
+    }
+  }
+]

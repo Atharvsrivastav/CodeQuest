@@ -7,6 +7,7 @@ CodeQuest is a Next.js 14 App Router app focused entirely on AI-assisted coding 
 - Next.js 14 with the App Router
 - TypeScript
 - Tailwind CSS
+- FastAPI backend service for adaptive quiz sessions and OpenAI-powered explanations
 - Framer Motion animations
 - Google Gemini API via server route handlers
 - Monaco Editor for coding surfaces
@@ -15,6 +16,7 @@ CodeQuest is a Next.js 14 App Router app focused entirely on AI-assisted coding 
 ## Features
 
 - Coding challenge library with difficulty filters and Monaco-based challenge runner
+- AI Adaptive Learning Tutor route with multilingual explanations, adaptive difficulty, streak tracking, and a chat-style quiz flow
 - Dedicated AI tutor for hints, debugging help, and concept explanations
 - Free editor for JavaScript, TypeScript, and Python with AI-simulated console output
 - Google login with Firebase Authentication
@@ -37,6 +39,7 @@ Then set:
 GEMINI_API_KEY=your_gemini_api_key_here
 JUDGE0_API_URL=https://ce.judge0.com
 JUDGE0_AUTH_TOKEN=your_judge0_auth_token_here
+NEXT_PUBLIC_ADAPTIVE_TUTOR_API_URL=http://127.0.0.1:8000
 NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key_here
 NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
 NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
@@ -48,6 +51,15 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 
 `JUDGE0_API_URL` and `JUDGE0_AUTH_TOKEN` are only read on the server. The Judge0 helper lives in [`lib/judge0.ts`](./lib/judge0.ts) and is intended for route handlers or other server-only modules.
 Firebase web config is initialized in [`lib/firebase.ts`](./lib/firebase.ts) and is intended for client-side auth and Firestore usage.
+The adaptive tutor frontend reads `NEXT_PUBLIC_ADAPTIVE_TUTOR_API_URL` to reach the FastAPI service.
+
+For the FastAPI backend, copy [`backend/.env.example`](./backend/.env.example) to `backend/.env` and set:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_MODEL=gpt-5.4-mini
+FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
 
 ## Getting Started
 
@@ -65,6 +77,19 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+Run the adaptive tutor backend in a second terminal:
+
+```bash
+cd backend
+python -m venv .venv
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+Then open `http://localhost:3000/adaptive-tutor`.
+
 ## Scripts
 
 - `npm run dev` starts the development server
@@ -76,6 +101,7 @@ Open `http://localhost:3000`.
 
 ```text
 app/
+  adaptive-tutor/page.tsx
   api/
     chat/route.ts
     dashboard/route.ts
@@ -92,6 +118,8 @@ app/
   layout.tsx
   page.tsx
 components/
+  adaptive-tutor/
+    AdaptiveTutorClient.tsx
   dashboard/
     DonutChart.tsx
     HorizontalBarChart.tsx
@@ -108,6 +136,10 @@ lib/
   personalization.ts
   progress.ts
   useProgress.ts
+backend/
+  main.py
+  question_bank.json
+  requirements.txt
 ```
 
 ## API Routes

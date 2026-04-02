@@ -11,7 +11,7 @@ type ThemeContextValue = {
   toggleTheme: () => void;
 };
 
-const storageKey = "codequest-theme";
+const storageKey = "codequest-theme-v2";
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -27,8 +27,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    setThemeState(prefersDark ? "dark" : "light");
+    setThemeState("light");
     setResolved(true);
   }, []);
 

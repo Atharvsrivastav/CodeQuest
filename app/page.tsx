@@ -9,19 +9,63 @@ import { useProgress } from "@/lib/useProgress";
 
 const featureCards = [
   {
+    href: "/adaptive-tutor",
+    label: "Adaptive Quiz",
+    title: "Adaptive Tutor",
+    copy: "Answer a multilingual quiz that adjusts difficulty on the fly and explains each answer clearly."
+  },
+  {
     href: "/tutor",
+    label: "Ask For Help",
     title: "AI Tutor",
-    copy: "Ask for hints, debugging help, and concept explanations without leaving the platform."
+    copy: "Get beginner-friendly coding guidance or switch to spoken-language practice without leaving the platform."
   },
   {
     href: "/code",
-    title: "Editor",
-    copy: "Prototype in JavaScript, TypeScript, and Python with AI-simulated console output."
+    label: "Prototype Fast",
+    title: "Workspace",
+    copy: "Jump into JavaScript, TypeScript, or Python and use AI to simulate console output while you iterate."
   },
   {
-    href: "/progress",
-    title: "Progress",
-    copy: "Track solved challenges, XP earned, and the remaining challenge backlog."
+    href: "/dashboard",
+    label: "See The Trend",
+    title: "Dashboard",
+    copy: "Track solved challenges, accuracy, and weak spots in one clean progress view."
+  }
+];
+
+const quickStartCards = [
+  {
+    href: "/tutor?path=coding",
+    label: "Coding Path",
+    title: "Learn with the tutor",
+    copy: "Choose a programming language and get explanations paced for beginners.",
+    meta: "Step-by-step guidance"
+  },
+  {
+    href: "/code",
+    label: "Workspace",
+    title: "Prototype an idea",
+    copy: "Use the editor when you want a low-pressure space to test syntax and experiment.",
+    meta: "JavaScript, TypeScript, Python"
+  }
+];
+
+const practiceFlow = [
+  {
+    step: "01",
+    title: "Start with one focused problem",
+    copy: "Pick a challenge that matches your level instead of navigating a cluttered workspace."
+  },
+  {
+    step: "02",
+    title: "Ask for help without losing context",
+    copy: "Use the tutor when you need a nudge, then jump back into the same practice loop."
+  },
+  {
+    step: "03",
+    title: "See progress in a way that feels rewarding",
+    copy: "XP, streaks, and completion stay visible so each session feels like momentum."
   }
 ];
 
@@ -31,6 +75,10 @@ export default function HomePage() {
   const recentChallenges = codingChallenges.slice(0, 4);
   const solvedCount = progress.completedIds.length;
   const completionRate = Math.round((solvedCount / Math.max(codingChallenges.length, 1)) * 100);
+  const nextChallenge =
+    codingChallenges.find((challenge) => !completedIds.has(challenge.id)) ?? codingChallenges[0];
+  const javascriptCount = codingChallenges.filter((challenge) => challenge.language === "js").length;
+  const pythonCount = codingChallenges.filter((challenge) => challenge.language === "python").length;
   const sectionMotion = (delay = 0) => ({
     initial: false as const,
     whileInView: { opacity: 1, y: 0 },
@@ -39,62 +87,116 @@ export default function HomePage() {
   });
 
   return (
-    <div className="page-shell stack-lg">
-      <motion.section className="card stack-lg" {...sectionMotion(0.05)}>
-        <div className="stack-md">
-          <span className="section-label">AI Coding Platform</span>
-          <div className="hero-grid">
+    <div className="page-shell stack-xl">
+      <motion.section className="card hero-card stack-lg" {...sectionMotion(0.05)}>
+        <div className="hero-grid hero-grid-home">
+          <div className="stack-lg">
             <div className="stack-md">
-              <h1 className="page-heading">Practice code with challenges, tutoring, and a live workspace.</h1>
-              <p className="page-copy">
-                CodeQuest keeps the entire experience centered on programming so learners can solve
-                challenges, get AI guidance, and measure progress in one focused workflow.
+              <span className="hero-kicker">Bright, focused practice</span>
+              <h1 className="page-heading">
+                Build coding confidence in a workspace that feels light, calm, and motivating.
+              </h1>
+              <p className="page-copy hero-copy">
+                CodeQuest brings challenges, AI tutoring, and a live editor into one clean flow so
+                learning feels less overwhelming and more rewarding every time you return.
               </p>
-              <div className="inline-cluster">
-                <Link href="/challenges" className="btn btn-primary">
-                  Start Challenges
-                </Link>
-                <Link href="/tutor" className="btn btn-ghost">
-                  Open Tutor
-                </Link>
+            </div>
+
+            <div className="inline-cluster">
+              <Link href="/challenges" className="btn btn-primary">
+                Start Challenges
+              </Link>
+              <Link href="/code" className="btn btn-ghost">
+                Open Workspace
+              </Link>
+            </div>
+
+            <div className="hero-stat-strip">
+              <div className="hero-stat-chip">
+                <span className="section-label" style={{ marginBottom: 0 }}>
+                  Solved
+                </span>
+                <strong>
+                  {solvedCount}/{codingChallenges.length}
+                </strong>
+                <span>Challenges completed in your current track.</span>
+              </div>
+              <div className="hero-stat-chip">
+                <span className="section-label" style={{ marginBottom: 0 }}>
+                  XP Earned
+                </span>
+                <strong>{progress.xp}</strong>
+                <span>Rewarded progress across your practice sessions.</span>
+              </div>
+              <div className="hero-stat-chip">
+                <span className="section-label" style={{ marginBottom: 0 }}>
+                  Current Streak
+                </span>
+                <strong>{progress.streak}</strong>
+                <span>Keep the chain going with one small win today.</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hero-spotlight stack-md">
+            <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
+              <div className="stack-sm">
+                <span className="section-label" style={{ marginBottom: 0 }}>
+                  Learning Cockpit
+                </span>
+                <h2 style={{ margin: 0, fontSize: "1.9rem", letterSpacing: "-0.05em" }}>
+                  One clean loop from practice to progress.
+                </h2>
+              </div>
+              <span className="badge badge-blue">{completionRate}% complete</span>
+            </div>
+
+            <div className="hero-spotlight-grid">
+              <div className="hero-spotlight-card">
+                <span className="section-label" style={{ marginBottom: 0 }}>
+                  Challenge Library
+                </span>
+                <strong>{codingChallenges.length}</strong>
+                <span className="text-subtle">Curated coding exercises ready to solve.</span>
+              </div>
+              <div className="hero-spotlight-card">
+                <span className="section-label" style={{ marginBottom: 0 }}>
+                  Language Mix
+                </span>
+                <strong>
+                  {javascriptCount} JS / {pythonCount} Py
+                </strong>
+                <span className="text-subtle">A balanced set of frontend and scripting practice.</span>
               </div>
             </div>
 
-            <div className="card surface-muted stack-md">
-              <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
-                <div className="stack-sm">
-                  <span className="section-label" style={{ marginBottom: 0 }}>
-                    Today&apos;s Snapshot
-                  </span>
-                  <h2 style={{ margin: 0, fontSize: "2rem", letterSpacing: "-0.04em" }}>
-                    {progress.xp} XP
-                  </h2>
-                </div>
-                <span className="badge badge-blue">{solvedCount} completed</span>
+            <div className="hero-note stack-sm">
+              <div className="row-meta">
+                <span className="badge badge-green">Next up</span>
+                <span className="text-subtle">{nextChallenge.title}</span>
               </div>
               <p className="page-copy">
-                Stay inside one coding loop: pick a challenge, ask for help when you need it, then
-                track the XP you earn as you solve.
+                {nextChallenge.description}
               </p>
               <div className="row-meta">
-                <span className="badge badge-gray mono">{codingChallenges.length} challenges</span>
-                <span className="badge badge-gray mono">{completionRate}% complete</span>
+                <span className={`badge ${nextChallenge.language === "python" ? "badge-amber" : "badge-blue"}`}>
+                  {nextChallenge.language === "python" ? "Python" : "JavaScript"}
+                </span>
+                <span className="badge badge-gray">{nextChallenge.xp} XP reward</span>
               </div>
             </div>
           </div>
         </div>
 
-        {progress.xp > 0 && (
-          <ProgressBar value={progress.xp} max={totalChallengeXp} label="Challenge XP progress" />
-        )}
+        <ProgressBar value={progress.xp} max={totalChallengeXp} label="XP runway" />
       </motion.section>
 
       <motion.section className="split-grid" {...sectionMotion(0.12)}>
         <div className="list-panel stack-sm">
           <div className="inline-cluster" style={{ justifyContent: "space-between" }}>
-            <div>
+            <div className="stack-sm">
               <p className="section-label">Challenge Track</p>
-              <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>Recent challenges</h2>
+              <h2 style={{ margin: 0, letterSpacing: "-0.04em" }}>Recent challenges</h2>
             </div>
             <Link href="/challenges" className="btn btn-ghost">
               Browse all
@@ -124,62 +226,79 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="list-panel stack-sm">
+        <div className="card stack-sm">
           <div className="stack-sm">
-            <p className="section-label">Platform Focus</p>
-            <h2 style={{ margin: 0, letterSpacing: "-0.03em" }}>Everything points back to coding practice</h2>
+            <span className="section-label">Quick Start</span>
+            <h2 style={{ margin: 0, letterSpacing: "-0.04em" }}>Choose the kind of session you want</h2>
+            <p className="page-copy">
+              The interface stays simple on purpose, so you can start a guided lesson or open the
+              workspace without feeling lost.
+            </p>
           </div>
 
-          <div style={{ marginTop: "1rem" }} className="stack-md">
-            <div className="list-row">
-              <div className="list-row-copy">
-                <h3 className="list-row-title">Challenge-first flow</h3>
-                <p className="list-row-desc">
-                  Home, tutor, and progress now revolve around coding challenge execution instead of
-                  mixed learning tracks.
-                </p>
-              </div>
-            </div>
-            <div className="list-row">
-              <div className="list-row-copy">
-                <h3 className="list-row-title">AI help without context switching</h3>
-                <p className="list-row-desc">
-                  Use the dedicated tutor for concepts or the challenge-level tutor for targeted
-                  nudges while staying in the same product.
-                </p>
-              </div>
-            </div>
-            <div className="list-row">
-              <div className="list-row-copy">
-                <h3 className="list-row-title">Progress that matches the product</h3>
-                <p className="list-row-desc">
-                  XP and completion rates now reflect coding challenges only, including migrated
-                  local progress from the previous mixed app.
-                </p>
-              </div>
-            </div>
+          <div className="quick-start-grid">
+            {quickStartCards.map((card) => (
+              <Link href={card.href} className="quick-start-card" key={card.href}>
+                <p className="section-label">{card.label}</p>
+                <h3>{card.title}</h3>
+                <p className="page-copy">{card.copy}</p>
+                <div className="quick-start-meta">
+                  <span className="badge badge-blue">{card.meta}</span>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </motion.section>
 
-      <motion.section className="feature-grid" {...sectionMotion(0.18)}>
-        {featureCards.map((card, index) => (
-          <motion.div
-            key={card.href}
-            initial={false}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ duration: 0.35, delay: 0.08 + index * 0.05, ease: "easeOut" }}
-          >
-            <Link href={card.href} className="feature-link">
-              <p className="section-label">{card.title}</p>
-              <h3 style={{ margin: "0 0 0.6rem", fontSize: "1.2rem", letterSpacing: "-0.03em" }}>
-                {card.title}
-              </h3>
-              <p className="page-copy">{card.copy}</p>
-            </Link>
-          </motion.div>
-        ))}
+      <motion.section className="split-grid" {...sectionMotion(0.18)}>
+        <div className="list-panel stack-sm">
+          <div className="stack-sm">
+            <p className="section-label">Why It Feels Better</p>
+            <h2 style={{ margin: 0, letterSpacing: "-0.04em" }}>The product now leads with clarity</h2>
+          </div>
+
+          <div className="insight-list">
+            {practiceFlow.map((item) => (
+              <div className="insight-item" key={item.step}>
+                <span className="insight-step">{item.step}</span>
+                <div className="insight-copy">
+                  <h3>{item.title}</h3>
+                  <p>{item.copy}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="card stack-md">
+          <div className="stack-sm">
+            <p className="section-label">Explore The Product</p>
+            <h2 style={{ margin: 0, letterSpacing: "-0.04em" }}>Every major tool stays within reach</h2>
+            <p className="page-copy">
+              The app keeps the most useful surfaces close together so moving between practice,
+              help, and review feels natural.
+            </p>
+          </div>
+
+          <div className="quick-start-grid">
+            {featureCards.map((card, index) => (
+              <motion.div
+                key={card.href}
+                initial={false}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.35 }}
+                transition={{ duration: 0.35, delay: 0.08 + index * 0.05, ease: "easeOut" }}
+              >
+                <Link href={card.href} className="quick-start-card">
+                  <p className="section-label">{card.label}</p>
+                  <h3>{card.title}</h3>
+                  <p className="page-copy">{card.copy}</p>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </motion.section>
     </div>
   );
